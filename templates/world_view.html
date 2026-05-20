@@ -1,0 +1,41 @@
+<h2>World: {{ world.name }}</h2>
+<p>Center: ({{ center_x }}, {{ center_y }}) | Radius: {{ radius }}</p>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 36px);
+    gap: 0;
+  }
+
+  .tile {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+  }
+
+  .grass { background: #7cfc00; }
+  .mountain { background: #888; color: white; }
+  .desert { background: #f4d03f; }
+
+  .empty {
+    background: #111;
+  }
+</style>
+
+<div class="grid" style="grid-template-columns: repeat({{ diameter }}, 36px);">
+  {% for row in grid %}
+    {% for tile in row %}
+      {% if tile %}
+        <div class="tile {{ tile.terrain }}">
+          {{ tile.terrain|slice:":1" }}
+        </div>
+      {% else %}
+        <div class="tile empty"></div>
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
+</div>
