@@ -28,6 +28,14 @@ class Tile(models.Model):
         max_length=20, choices=Terrain.choices, default=Terrain.GRASS
     )
 
+    owner = models.ForeignKey(
+        "kingdom.Kingdom",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="tiles",
+    )
+
     class Meta:
         unique_together = ("world", "x", "y")
         indexes = [
