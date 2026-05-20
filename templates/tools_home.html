@@ -31,8 +31,23 @@
   </style>
 </head>
 <body>
+  <div style="margin-bottom: 20px;">
+    {% if request.user.is_authenticated %}
+      <p>
+        Logged in as: <strong style="color: red">{{ request.user.username }}</strong>
+      </p>
 
-  <h1>Tools</h1>
+      <form method="post" action="{% url 'tools:logout' %}">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+      </form>
+
+    {% else %}
+      <a href="{% url 'tools:login' %}">Login</a>
+      |
+      <a href="{% url 'tools:register' %}">Register</a>
+    {% endif %}
+  </div>
 
   <h2>World Viewer</h2>
 

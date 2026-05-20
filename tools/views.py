@@ -1,4 +1,7 @@
-from django.shortcuts import render, get_object_or_404
+from django.contrib.auth import login
+from django.shortcuts import render, get_object_or_404, redirect
+
+from tools.forms import RegisterForm
 from world.models import World, Tile
 
 
@@ -6,6 +9,21 @@ def tools_home(request):
     worlds = World.objects.all().order_by("id")
 
     return render(request, "tools_home.html", {"worlds": worlds})
+
+
+def register_user_view(request):
+    if request.method == "POST":
+        form = RegisterForm(request.POST)
+
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect("/tools/")
+
+    else:
+        form = RegisterForm()
+
+    return render(request, "users/register.html", {"form": form})
 
 
 def world_view(request, world_id):
