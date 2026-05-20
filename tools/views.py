@@ -5,9 +5,10 @@ from world.models import World, Tile
 def world_view(request, world_id):
     world = get_object_or_404(World, id=world_id)
 
-    center_x = int(request.GET.get("x", 0))
-    center_y = int(request.GET.get("y", 0))
-    radius = int(request.GET.get("r", 10))
+    center_x = int(request.GET.get("x", 10))
+    center_y = int(request.GET.get("y", 10))
+    radius = int(request.GET.get("r", 8))
+    radius = max(1, min(radius, 8))
 
     tiles = Tile.objects.filter(
         world=world,
