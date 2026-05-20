@@ -1,10 +1,7 @@
 from django.db import models
 
-from evermere_kingdomes import settings
-
 
 class Kingdom(models.Model):
-
     world = models.ForeignKey(
         "world.World", on_delete=models.CASCADE, related_name="kingdoms"
     )
@@ -18,3 +15,10 @@ class Kingdom(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["world", "name"], name="unique_kingdom_name_per_world"
+            )
+        ]
