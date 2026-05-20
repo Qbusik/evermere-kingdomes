@@ -2,6 +2,12 @@ from django.shortcuts import render, get_object_or_404
 from world.models import World, Tile
 
 
+def tools_home(request):
+    worlds = World.objects.all().order_by("id")
+
+    return render(request, "tools_home.html", {"worlds": worlds})
+
+
 def world_view(request, world_id):
     world = get_object_or_404(World, id=world_id)
 
