@@ -1,0 +1,254 @@
+{% load static %}
+
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: #111;
+    color: white;
+  }
+
+  .joystick {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+
+    z-index: 2000;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    background: rgba(0,0,0,0.5);
+    padding: 8px;
+    border-radius: 10px;
+  }
+
+  .joystick button {
+    width: 42px;
+    height: 42px;
+
+    margin: 2px;
+
+    background: #222;
+    color: white;
+    border: 1px solid #555;
+
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 18px;
+  }
+
+  .joystick .mid {
+    display: flex;
+  }
+
+  .viewport {
+    height: 100vh;
+    position: relative;
+  }
+
+  .ui-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 10px;
+    background: rgba(0,0,0,0.6);
+    z-index: 1000;
+  }
+
+  .tooltip-global {
+    position: absolute;
+    background: dimgray;
+    color: white;
+    padding: 8px 16px;
+    font-size: 16px;
+    border-radius: 3px;
+
+    pointer-events: none;
+    opacity: 0;
+    z-index: 9999;
+    white-space: nowrap;
+  }
+
+  .map-container {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    perspective: 900px;
+  }
+
+  .camera {
+    transform: rotateX(37deg) translateY(-80px);
+    transform-origin: center;
+  }
+
+  .grid {
+    display: grid;
+    gap: 0;
+    border: solid 10px #002a32;
+    border-radius: 5px;
+  }
+
+  .tile {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    position: relative;
+  }
+
+  .tile:hover {
+    opacity: 0.8;
+  }
+
+  .tile.selected {
+    outline: 2px solid black;
+    z-index: 20;
+    transform: scale(1.2);
+  }
+
+  .tile-img {
+    width: 70%;
+    height: 70%;
+    object-fit: contain;
+    display: block;
+    opacity: 0.4;
+  }
+
+  .grass { background: #7cfc00; }
+  .mountain { background: #888; }
+  .desert { background: #f4d03f; }
+
+  .empty { background: #002a32; }
+</style>
+
+<div class="viewport">
+
+  <div class="ui-top">
+    <h2>World: {{ world.name }}</h2>
+    <p>Center: ({{ center_x }}, {{ center_y }}) | Radius: {{ radius }}</p>
+
+    <div class="joystick">
+      <button data-dir="up">↑</button>
+      <div class="mid">
+        <button data-dir="left">←</button>
+        <button data-dir="down">↓</button>
+        <button data-dir="right">→</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="tooltip-global" id="tooltip"></div>
+
+  <div class="map-container">
+    <div class="camera">
+      <div class="grid" style="grid-template-columns: repeat({{ diameter }}, 40px);">
+
+        {% for row in grid %}
+          {% for tile in row %}
+
+            {% if tile %}
+              <div class="tile {{ tile.terrain }}"
+                   data-x="{{ tile.x }}"
+                   data-y="{{ tile.y }}"
+                   data-terrain="{{ tile.terrain }}">
+
+                <img class="tile-img"
+                     src="{% static 'icons/' %}{{ tile.terrain }}.png" />
+
+              </div>
+            {% else %}
+              <div class="tile empty"></div>
+            {% endif %}
+
+          {% endfor %}
+        {% endfor %}
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const tooltip = document.getElementById("tooltip");
+
+let selectedTile = null;
+
+function showTooltip(tile) {
+  const x = tile.dataset.x;
+  const y = tile.dataset.y;
+  const terrain = tile.dataset.terrain;
+  const terrainType = terrain.charAt(0).toUpperCase() + terrain.slice(1);
+
+  tooltip.innerText = `${terrainType}\n\nX: ${x}, Y: ${y}`;
+  tooltip.style.opacity = 1;
+
+  const rect = tile.getBoundingClientRect();
+
+  const tooltipHeight = tooltip.offsetHeight;
+
+  tooltip.style.left = rect.left + "px";
+  tooltip.style.top = (rect.top - tooltipHeight - 10) + "px";
+}
+
+function hideTooltip() {
+  tooltip.style.opacity = 0;
+}
+
+document.querySelectorAll(".tile").forEach(tile => {
+
+  tile.addEventListener("click", () => {
+
+    if (selectedTile) {
+      selectedTile.classList.remove("selected");
+    }
+
+    selectedTile = tile;
+    tile.classList.add("selected");
+
+    showTooltip(tile);
+  });
+
+});
+
+window.addEventListener("resize", () => {
+  if (selectedTile) showTooltip(selectedTile);
+});
+
+let x = {{ center_x }};
+let y = {{ center_y }};
+const r = {{ radius }};
+const worldId = {{ world.id }};
+
+function go() {
+  const url = `/tools/world/${worldId}/?x=${x}&y=${y}&r=${r}`;
+  window.location.href = url;
+}
+
+document.querySelectorAll(".joystick button").forEach(btn => {
+  btn.addEventListener("click", () => {
+
+    const dir = btn.dataset.dir;
+
+    if (dir === "up") y -= 1;
+    if (dir === "down") y += 1;
+    if (dir === "left") x -= 1;
+    if (dir === "right") x += 1;
+
+    go();
+  });
+});
+</script>

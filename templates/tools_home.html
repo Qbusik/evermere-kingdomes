@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tools</title>
+  <style>
+    body {
+      background: #111;
+      color: white;
+      font-family: Arial;
+      padding: 20px;
+    }
+
+    .card {
+      background: #222;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    a {
+      color: #00d4ff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Tools</h1>
+
+  <h2>World Viewer</h2>
+
+  {% for world in worlds %}
+    <div class="card">
+      <div>
+        {{ world.name }}
+      </div>
+
+      <a href="{% url 'tools:world_view' world.id %}">
+        Open
+      </a>
+    </div>
+  {% empty %}
+    <p>No worlds found</p>
+  {% endfor %}
+
+</body>
+</html>
